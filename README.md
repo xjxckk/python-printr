@@ -1,7 +1,7 @@
 ### printr
 
 Installation:
-`pip install printr`
+`pip install python-printr`
 
 Usage:
 ```
