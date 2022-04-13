@@ -30,8 +30,8 @@ class printr:
 
 class current_time:
     def __init__(self, *items, same_line=False):
-        printr(same_line=same_line, current_time=True)
+        printr(*items, same_line=same_line, current_time=True)
 
 class same_line:
     def __init__(self, *items, current_time=False):
-        printr(same_line=same_line, current_time=current_time,)
+        printr(*items, same_line=same_line, current_time=current_time,)
