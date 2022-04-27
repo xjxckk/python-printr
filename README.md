@@ -1,4 +1,4 @@
-### printr
+### python-printr
 Python print functions to beautify output
 
 Installation:
