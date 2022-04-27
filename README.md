@@ -1,4 +1,5 @@
 ### printr
+Python print functions to beautify output
 
 Installation:
 `pip install python-printr`
