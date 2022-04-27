@@ -34,4 +34,4 @@ class current_time:
 
 class same_line:
     def __init__(self, *items, current_time=False):
-        printr(*items, same_line=same_line, current_time=current_time,)
+        printr(*items, same_line=same_line, current_time=current_time)
