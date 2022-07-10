@@ -1,5 +1,5 @@
 from datetime import datetime
-import json, os
+import json, shutil
 
 class printr:
     '''printr'''
@@ -11,15 +11,15 @@ class printr:
             for item in items:
                 if message:
                     message += ' '
+                if isinstance(item, dict) or isinstance(item, list):
+                    item = json.dumps(item, indent=4)
                 message += str(item)
-        if isinstance(message, dict) or isinstance(message, list):
-            message = json.dumps(message, indent=4)
-        elif current_time:
+        if current_time:
             current_time = datetime.now()
             current_time = current_time.strftime('%H:%M:%S:%f')
             message = f'{current_time}: {message}'
         if same_line:
-            terminal_size = os.get_terminal_size()
+            terminal_size = shutil.get_terminal_size()
             max_characters = terminal_size.columns - 1
             print(' ' * max_characters, end='') # Clear previous output
             print('\r', end='')
