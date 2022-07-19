@@ -6,11 +6,13 @@ class printr:
     def __init__(self, *items, same_line=False, current_time=False):
         if len(items) == 1:
             message = items[0]
+            if isinstance(message, dict) or isinstance(message, list):
+                message = json.dumps(message, indent=4) # Beautify JSON objects
         else:
             message = ''
             for item in items:
                 if message:
-                    message += ' '
+                    message += ' ' # Add space in between variables
                 if isinstance(item, dict) or isinstance(item, list):
                     item = json.dumps(item, indent=4)
                 message += str(item)
@@ -19,7 +21,7 @@ class printr:
             current_time = current_time.strftime('%H:%M:%S:%f')
             message = f'{current_time}: {message}'
         if same_line:
-            terminal_size = shutil.get_terminal_size()
+            terminal_size = shutil.get_terminal_size() # Uses shutil rather than os to support piping output to file
             max_characters = terminal_size.columns - 1
             print(' ' * max_characters, end='') # Clear previous output
             print('\r', end='')
