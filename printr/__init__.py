@@ -1,4 +1,4 @@
-import sys, logging, coloredlogs, json, os, shutil
+import sys, logging, json, os, shutil, coloredlogs
 from pathlib import Path
 from datetime import datetime
 
