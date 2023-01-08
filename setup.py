@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name = 'python-printr',
     packages = ['printr'],
-    version = '0.7',
+    version = '0.8',
     description = 'printr',
     url = 'https://github.com/xjxckk/python-printr/',
     download_url = 'https://github.com/xjxckk/python-printr/archive/refs/tags/v0.1.tar.gz',
