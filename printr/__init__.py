@@ -5,11 +5,11 @@ from datetime import datetime
 class logger:
     def __init__(self, filename=None, max_filesize=1024):
         if not filename:
-            filename = Path(sys.argv[0]).stem
+            filename = Path(sys.argv[0]).stem + '.log'
         self.filename = filename
         self.max_filesize = max_filesize
 
-        logger = logging.getLogger()
+        logger = logging.getLogger(__name__)
         logger.setLevel(logging.DEBUG)
 
         log_file = logging.FileHandler(filename, mode='w')
@@ -38,6 +38,10 @@ class logger:
                     pass
             message += str(item)
 
+        if not message:
+            log_format = logging.Formatter(fmt='%(message)s')
+            self.log_file.setFormatter(log_format)
+
         if level == 'info':
             self.logger.info(message)
         elif level == 'debug':
@@ -45,9 +49,13 @@ class logger:
         elif level == 'error':
             self.logger.error(message)
 
+        if not message:
+            log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%H:%M:%S')
+            self.log_file.setFormatter(log_format)
+
         if os.path.getsize(self.filename) > self.max_filesize:
             self.logger.info('Resetting log file')
-            log_file.close()
+            self.log_file.close()
     
     def error(self, *items):
         self.log(*items, level='error')
