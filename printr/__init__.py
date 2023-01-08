@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 
 class logger:
-    def __init__(self, filename=None, max_filesize=1024):
+    def __init__(self, filename=None, max_filesize=50140):
         if not filename:
             filename = Path(sys.argv[0]).stem + '.log'
         self.filename = filename
