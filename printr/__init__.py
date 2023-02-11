@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 
 class logger:
-    def __init__(self, log_filepath=None, max_lines=10000):
+    def __init__(self, log_filepath=None, max_lines=100_000, level='info'):
         filename = Path(sys.argv[0]).stem
         self.filename = filename
         if not log_filepath:
@@ -15,16 +15,25 @@ class logger:
         logger.setLevel(logging.DEBUG)
 
         log_file = logging.FileHandler(log_filepath, encoding='utf-8')
-        log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        log_format = logging.Formatter(fmt='%(message)s')
         log_file.setFormatter(log_format)
         logger.addHandler(log_file)
         self.log_file = log_file
+        
+        logger.info('') # add line break in between runs in log file
+        log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        log_file.setFormatter(log_format)
 
-        coloredlogs.install(level=logging.INFO, logger=logger, fmt='%(message)s')
+        if level == 'info':
+            self.level = logging.INFO
+        elif level == 'debug':
+            self.level = logging.DEBUG
+        coloredlogs.install(level=self.level, logger=logger, fmt='%(message)s')
         self.logger = logger
 
-        self.log()
-        self.log('Starting', filename)
+        self.indent = ''
+        
+        self.current_time('Starting', filename)
         self.log()
 
     def log(self, *items, level='info'):
@@ -45,8 +54,9 @@ class logger:
             message += str(item)
 
         if not message:
-            log_format = logging.Formatter(fmt='%(message)s')
+            log_format = logging.Formatter(fmt=self.indent + '%(message)s')
             self.log_file.setFormatter(log_format)
+            coloredlogs.install(level=self.level, logger=self.logger, fmt='%(message)s')
 
         if level == 'info':
             self.logger.info(message)
@@ -60,16 +70,17 @@ class logger:
             self.logger.warning(message)
 
         if not message:
-            log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S') # Reset to default log format
             self.log_file.setFormatter(log_format)
+            coloredlogs.install(level=self.level, logger=self.logger, fmt=self.indent + '%(message)s') # Reset to default log format
 
-        log_file = open(self.log_filepath, 'r+').read()
+        log_file = open(self.log_filepath, 'r+', encoding='utf-8', errors='ignore').read()
         number_of_lines = len(log_file.splitlines())
         if number_of_lines > self.max_lines:
             self.logger.info('Resetting log file')
             self.log_file.close()
             log_file = logging.FileHandler(self.log_filepath, mode='w', encoding='utf-8')
-            log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
             log_file.setFormatter(log_format)
             self.logger.addHandler(log_file)
             self.log_file = log_file
@@ -87,13 +98,21 @@ class logger:
         self.log(*items, level='warning')
     
     def current_time(self, *items, level='info'):
-        coloredlogs.install(level=logging.INFO, logger=self.logger, fmt='%(asctime)s.%(msecs)03d: %(message)s', datefmt='%H:%M:%S') # Add current time to printed log output format
+        coloredlogs.install(level=self.level, logger=self.logger, fmt=self.indent + '%(asctime)s.%(msecs)03d: %(message)s', datefmt='%H:%M:%S') # Add current time to printed log output format
         self.log(*items, level=level)
-        coloredlogs.install(level=logging.INFO, logger=self.logger, fmt='%(message)s') # Reset to default log format
-
-    # def __del__(self):
-    #     self.log('Exiting', self.filename)
-    #     self.log()
+        coloredlogs.install(level=self.level, logger=self.logger, fmt=self.indent + '%(message)s') # Reset to default log format
+    
+    def set_indent(self, indent=' - '):
+        log_format = logging.Formatter(fmt=indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        self.log_file.setFormatter(log_format)
+        coloredlogs.install(level=self.level, logger=self.logger, fmt=indent + '%(message)s')
+        self.indent = indent
+    
+    def remove_indent(self):
+        log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+        self.log_file.setFormatter(log_format)
+        coloredlogs.install(level=self.level, logger=self.logger, fmt='%(message)s') # Reset to default log format
+        self.indent = ''
 
 class printr:
     '''printr'''
