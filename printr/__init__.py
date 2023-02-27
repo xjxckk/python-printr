@@ -36,12 +36,12 @@ class logger:
         self.current_time('Starting', filename)
         self.log()
 
-    def log(self, *items, level='info'):
+    def log(self, *items, level='info', beautify=True):
         message = ''
         for item in items:
             if message and '\n' not in message:
                 message += ' ' # Add space in between variables
-            if isinstance(item, dict) or isinstance(item, list):
+            if beautify and (isinstance(item, dict) or isinstance(item, list)):
                 try:
                     if message and '\n' not in message: # Add line breaks before and after
                         formatted_item = '\n'
