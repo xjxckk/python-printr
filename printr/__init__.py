@@ -98,9 +98,9 @@ class logger:
         self.log(*items, level='warning')
     
     def current_time(self, *items, level='info'):
-        coloredlogs.install(level=self.level, logger=self.logger, fmt=self.indent + '%(asctime)s.%(msecs)03d: %(message)s', datefmt='%H:%M:%S') # Add current time to printed log output format
-        self.log(*items, level=level)
-        coloredlogs.install(level=self.level, logger=self.logger, fmt=self.indent + '%(message)s') # Reset to default log format
+        current_time = datetime.now()
+        current_time = current_time.strftime('%H:%M:%S:%f') + ':'
+        self.log(current_time, *items, level=level)
     
     def set_indent(self, indent=' - '):
         log_format = logging.Formatter(fmt=indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
