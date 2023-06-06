@@ -3,37 +3,42 @@ from pathlib import Path
 from datetime import datetime
 
 class logger:
-    def __init__(self, log_filepath=None, max_lines=100_000, level='info'):
+    def __init__(self, log_filepath=None, max_lines=100_000, level='info', name=None, log_to_file=True):
         filename = Path(sys.argv[0]).stem
         self.filename = filename
         if not log_filepath:
             log_filepath = f'{os.getcwd()}/{filename}.txt'
         self.log_filepath = log_filepath
         self.max_lines = max_lines
-
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG)
-
-        log_file = logging.FileHandler(log_filepath, encoding='utf-8')
-        log_format = logging.Formatter(fmt='%(message)s')
-        log_file.setFormatter(log_format)
-        logger.addHandler(log_file)
-        self.log_file = log_file
-        
-        logger.info('') # add line break in between runs in log file
-        log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-        log_file.setFormatter(log_format)
+        self.log_to_file = log_to_file
 
         if level == 'info':
             self.level = logging.INFO
         elif level == 'debug':
             self.level = logging.DEBUG
+
+        logger = logging.getLogger(__name__)
+        logger.setLevel(self.level)
+
+        if log_to_file:
+            log_file = logging.FileHandler(log_filepath, encoding='utf-8')
+            log_format = logging.Formatter(fmt='%(message)s')
+            log_file.setFormatter(log_format)
+            logger.addHandler(log_file)
+            self.log_file = log_file
+            
+            logger.info('') # add line break in between runs in log file
+            log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            log_file.setFormatter(log_format)
+
         coloredlogs.install(level=self.level, logger=logger, fmt='%(message)s')
         self.logger = logger
 
         self.indent = ''
         
-        self.current_time('Starting', filename)
+        if not name:
+            name = filename
+        self.current_time('Starting', name)
         self.log()
 
     def log(self, *items, level='info', beautify=True):
@@ -54,8 +59,9 @@ class logger:
             message += str(item)
 
         if not message:
-            log_format = logging.Formatter(fmt=self.indent + '%(message)s')
-            self.log_file.setFormatter(log_format)
+            if self.log_to_file:
+                log_format = logging.Formatter(fmt=self.indent + '%(message)s')
+                self.log_file.setFormatter(log_format)
             coloredlogs.install(level=self.level, logger=self.logger, fmt='%(message)s')
 
         if level == 'info':
@@ -70,20 +76,22 @@ class logger:
             self.logger.warning(message)
 
         if not message:
-            log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S') # Reset to default log format
-            self.log_file.setFormatter(log_format)
+            if self.log_to_file:
+                log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S') # Reset to default log format
+                self.log_file.setFormatter(log_format)
             coloredlogs.install(level=self.level, logger=self.logger, fmt=self.indent + '%(message)s') # Reset to default log format
 
-        log_file = open(self.log_filepath, 'r+', encoding='utf-8', errors='ignore').read()
-        number_of_lines = len(log_file.splitlines())
-        if number_of_lines > self.max_lines:
-            self.logger.info('Resetting log file')
-            self.log_file.close()
-            log_file = logging.FileHandler(self.log_filepath, mode='w', encoding='utf-8')
-            log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-            log_file.setFormatter(log_format)
-            self.logger.addHandler(log_file)
-            self.log_file = log_file
+        if self.log_to_file:
+            log_file = open(self.log_filepath, 'r+', encoding='utf-8', errors='ignore').read()
+            number_of_lines = len(log_file.splitlines())
+            if number_of_lines > self.max_lines:
+                self.logger.info('Resetting log file')
+                self.log_file.close()
+                log_file = logging.FileHandler(self.log_filepath, mode='w', encoding='utf-8')
+                log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+                log_file.setFormatter(log_format)
+                self.logger.addHandler(log_file)
+                self.log_file = log_file
     
     def error(self, *items):
         self.log(*items, level='error')
@@ -103,14 +111,16 @@ class logger:
         self.log(current_time, *items, level=level)
     
     def set_indent(self, indent=' - '):
-        log_format = logging.Formatter(fmt=indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-        self.log_file.setFormatter(log_format)
+        if self.log_to_file:
+            log_format = logging.Formatter(fmt=indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            self.log_file.setFormatter(log_format)
         coloredlogs.install(level=self.level, logger=self.logger, fmt=indent + '%(message)s')
         self.indent = indent
     
     def remove_indent(self):
-        log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-        self.log_file.setFormatter(log_format)
+        if self.log_to_file:
+            log_format = logging.Formatter(fmt='%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+            self.log_file.setFormatter(log_format)
         coloredlogs.install(level=self.level, logger=self.logger, fmt='%(message)s') # Reset to default log format
         self.indent = ''
 
