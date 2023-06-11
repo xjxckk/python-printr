@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name = 'python-printr',
     packages = ['printr'],
-    version = '2.8',
+    version = '3.0',
     install_requires=['coloredlogs'],
     description = 'printr',
     url = 'https://github.com/xjxckk/python-printr/',

@@ -124,12 +124,13 @@ class logger:
         coloredlogs.install(level=self.level, logger=self.logger, fmt='%(message)s') # Reset to default log format
         self.indent = ''
 
-class printr:
+say = print
+class print:
     '''printr'''
-    def __init__(self, *items, same_line=False, current_time=False, check_for_log=True, level='info'):
+    def __init__(self, *items, same_line=False, current_time=False, check_for_log=True, level='info', beautify=True):
         if len(items) == 1:
             message = items[0]
-            if isinstance(message, dict) or isinstance(message, list):
+            if beautify and (isinstance(message, dict) or isinstance(message, list)):
                 try: message = json.dumps(message, indent=4) # Beautify JSON objects
                 except TypeError: pass
         else:
@@ -148,13 +149,13 @@ class printr:
         if same_line:
             terminal_size = shutil.get_terminal_size() # Uses shutil rather than os to support piping output to file
             max_characters = terminal_size.columns - 1
-            print(' ' * max_characters, end='') # Clear previous output
-            print('\r', end='')
-            print(message, end='')
-            print('\r', end='')
+            say(' ' * max_characters, end='') # Clear previous output
+            say('\r', end='')
+            say(message, end='')
+            say('\r', end='')
         else:
             if not check_for_log:
-                print(message)
+                say(message)
             else:
                 logger = logging.getLogger()
                 if logger.level != 30:
@@ -165,12 +166,17 @@ class printr:
                     else:
                         logger.info(message)
                 elif level != 'debug':
-                    print(message)
+                    say(message)
+
+
+class printr:
+    def __init__(self, *items, same_line=False, current_time=False, check_for_log=True, level='info', beautify=True):
+        print(*items, same_line=same_line, current_time=current_time, check_for_log=check_for_log, level=level, beautify=beautify)
 
 class current_time:
-    def __init__(self, *items, same_line=False, check_for_log=True):
-        printr(*items, same_line=same_line, current_time=True, check_for_log=check_for_log)
+    def __init__(self, *items, same_line=False, check_for_log=True, beautify=True):
+        print(*items, same_line=same_line, current_time=True, check_for_log=check_for_log, beautify=beautify)
 
 class same_line:
-    def __init__(self, *items, current_time=False, check_for_log=True):
-        printr(*items, same_line=same_line, current_time=current_time, check_for_log=check_for_log)
+    def __init__(self, *items, current_time=False, check_for_log=True, beautify=True):
+        print(*items, same_line=same_line, current_time=current_time, check_for_log=check_for_log, beautify=beautify)
