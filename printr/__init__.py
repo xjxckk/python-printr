@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 
 class logger:
-    def __init__(self, log_filepath=None, max_lines=100_000, level='info', name=None, log_to_file=True):
+    def __init__(self, log_filepath=None, max_lines=100_000, level='info', name=None, log_to_file=False):
         filename = Path(sys.argv[0]).stem
         self.filename = filename
         if not log_filepath:
@@ -42,21 +42,7 @@ class logger:
         self.log()
 
     def log(self, *items, level='info', beautify=True):
-        message = ''
-        for item in items:
-            if message and '\n' not in message:
-                message += ' ' # Add space in between variables
-            if beautify and (isinstance(item, dict) or isinstance(item, list)):
-                try:
-                    if message and '\n' not in message: # Add line breaks before and after
-                        formatted_item = '\n'
-                    else:
-                        formatted_item = ''
-                    formatted_item += json.dumps(item, indent=4) # Beautify JSON objects
-                    item = formatted_item + '\n'
-                except TypeError:
-                    pass
-            message += str(item)
+        message = prettify(items, beautify=beautify)
 
         if not message:
             if self.log_to_file:
@@ -128,24 +114,13 @@ say = print
 class print:
     '''printr'''
     def __init__(self, *items, same_line=False, current_time=False, check_for_log=True, level='info', beautify=True):
-        if len(items) == 1:
-            message = items[0]
-            if beautify and (isinstance(message, dict) or isinstance(message, list)):
-                try: message = json.dumps(message, indent=4) # Beautify JSON objects
-                except TypeError: pass
-        else:
-            message = ''
-            for item in items:
-                if message:
-                    message += ' ' # Add space in between variables
-                if isinstance(item, dict) or isinstance(item, list):
-                    try: item = json.dumps(item, indent=4) # Beautify JSON objects
-                    except TypeError: pass
-                message += str(item)
+        message = prettify(items, beautify)
+
         if current_time:
             current_time = datetime.now()
             current_time = current_time.strftime('%H:%M:%S:%f')
             message = f'{current_time}: {message}'
+
         if same_line:
             terminal_size = shutil.get_terminal_size() # Uses shutil rather than os to support piping output to file
             max_characters = terminal_size.columns - 1
@@ -153,6 +128,7 @@ class print:
             say('\r', end='')
             say(message, end='')
             say('\r', end='')
+
         else:
             if not check_for_log:
                 say(message)
@@ -168,11 +144,6 @@ class print:
                 elif level != 'debug':
                     say(message)
 
-
-class printr:
-    def __init__(self, *items, same_line=False, current_time=False, check_for_log=True, level='info', beautify=True):
-        print(*items, same_line=same_line, current_time=current_time, check_for_log=check_for_log, level=level, beautify=beautify)
-
 class current_time:
     def __init__(self, *items, same_line=False, check_for_log=True, beautify=True):
         print(*items, same_line=same_line, current_time=True, check_for_log=check_for_log, beautify=beautify)
@@ -180,3 +151,28 @@ class current_time:
 class same_line:
     def __init__(self, *items, current_time=False, check_for_log=True, beautify=True):
         print(*items, same_line=same_line, current_time=current_time, check_for_log=check_for_log, beautify=beautify)
+
+class printr:
+    def __init__(self, *items, same_line=False, current_time=False, check_for_log=True, level='info', beautify=True):
+        print(*items, same_line=same_line, current_time=current_time, check_for_log=check_for_log, level=level, beautify=beautify)
+
+# from rich.pretty import pretty_repr
+# from rich.text import Text
+
+def prettify(items, beautify):
+    message = ''
+    for item in items:
+        if message and '\n' not in message:
+            message += ' ' # Add space in between variables
+        if beautify and (isinstance(item, dict) or isinstance(item, list)):
+            try:
+                if message and '\n' not in message: # Add line breaks before and after
+                    formatted_item = '\n'
+                else:
+                    formatted_item = ''
+                formatted_item += json.dumps(item, indent=4) # Beautify JSON objects
+                item = formatted_item + '\n'
+            except TypeError:
+                pass
+        message += str(item)
+    return message

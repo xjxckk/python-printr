@@ -2,4 +2,4 @@
 /printr/__pycache__/
 /dist/
 /*.egg-info/
-test.py
+test*
