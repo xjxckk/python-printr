@@ -3,7 +3,7 @@ from pathlib import Path
 from datetime import datetime
 
 class logger:
-    def __init__(self, log_filepath=None, max_lines=100_000, level='info', name=None, log_to_file=False):
+    def __init__(self, log_filepath=None, max_lines=100_000, level='info', name=None, log_to_file=True):
         filename = Path(sys.argv[0]).stem
         self.filename = filename
         if not log_filepath:
@@ -56,8 +56,6 @@ class logger:
             self.logger.error(message)
         elif level == 'debug':
             self.logger.debug(message)
-        elif level == 'success':
-            self.logger.success(message)
         elif level == 'warning':
             self.logger.warning(message)
 
