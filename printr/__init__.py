@@ -41,7 +41,7 @@ class logger:
         self.current_time('Starting', name)
         self.log()
 
-    def log(self, *items, level='info', beautify=True):
+    def print(self, *items, level='info', beautify=True):
         message = prettify(items, beautify=beautify)
 
         if not message:
@@ -76,6 +76,9 @@ class logger:
                 log_file.setFormatter(log_format)
                 self.logger.addHandler(log_file)
                 self.log_file = log_file
+    
+    def log(self, *items, level='info', beautify=True):
+        self.print(*items, level=level, beautify=beautify)
     
     def error(self, *items):
         self.log(*items, level='error')
