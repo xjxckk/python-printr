@@ -1,4 +1,5 @@
 import sys, logging, json, os, shutil, coloredlogs
+from time import sleep
 from pathlib import Path
 from datetime import datetime
 
@@ -9,7 +10,7 @@ class logger:
         if not log_filepath:
             log_filepath = f'{os.getcwd()}/{filename}.txt'
         self.log_filepath = log_filepath
-        backup_log_filepath = log_filepath.replace('.txt', '_2.txt')
+        self.backup_log_filepath = log_filepath.replace('.txt', '_2_old.txt')
         self.max_lines = max_lines
         self.log_to_file = log_to_file
 
@@ -72,7 +73,8 @@ class logger:
             if number_of_lines > self.max_lines:
                 self.logger.info('Resetting log file')
                 self.log_file.close()
-                os.rename(self.log_filepath, backup_log_filepath)
+                sleep(1)
+                os.replace(self.log_filepath, self.backup_log_filepath)
                 log_file = logging.FileHandler(self.log_filepath, mode='w', encoding='utf-8')
                 log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
                 log_file.setFormatter(log_format)
@@ -94,10 +96,10 @@ class logger:
     def warning(self, *items):
         self.log(*items, level='warning')
     
-    def current_time(self, *items, level='info'):
+    def current_time(self, *items, level='info', beautify=True):
         current_time = datetime.now()
         current_time = current_time.strftime('%H:%M:%S:%f') + ':'
-        self.log(current_time, *items, level=level)
+        self.log(current_time, *items, level=level, beautify=beautify)
     
     def set_indent(self, indent=' - '):
         if self.log_to_file:
