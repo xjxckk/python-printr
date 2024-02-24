@@ -10,7 +10,7 @@ class logger:
         if not log_filepath:
             log_filepath = f'{os.getcwd()}/{filename}.txt'
         self.log_filepath = log_filepath
-        self.backup_log_filepath = log_filepath.replace('.txt', '_2_old.txt')
+        self.backup_log_filepath = log_filepath.replace('.txt', '_2nd_log.txt')
         self.max_lines = max_lines
         self.log_to_file = log_to_file
 
@@ -73,7 +73,7 @@ class logger:
             if number_of_lines > self.max_lines:
                 self.logger.info('Resetting log file')
                 self.log_file.close()
-                sleep(1)
+                sleep(3)
                 os.replace(self.log_filepath, self.backup_log_filepath)
                 log_file = logging.FileHandler(self.log_filepath, mode='w', encoding='utf-8')
                 log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
