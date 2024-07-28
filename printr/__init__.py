@@ -3,7 +3,7 @@ from time import sleep
 from pathlib import Path
 from datetime import datetime
 
-class logger:
+class Logger:
     def __init__(self, log_filepath=None, max_lines=100_000, level='info', name=None, log_to_file=True):
         filename = Path(sys.argv[0]).stem
         self.filename = filename
@@ -181,3 +181,5 @@ def prettify(items, beautify):
                 pass
         message += str(item)
     return message
+
+logger = Logger
