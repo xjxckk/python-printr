@@ -68,13 +68,33 @@ class Logger:
             coloredlogs.install(level=self.level, logger=self.logger, fmt=self.indent + '%(message)s') # Reset to default log format
 
         if self.log_to_file:
-            log_file = open(self.log_filepath, 'r+', encoding='utf-8', errors='ignore').read()
-            number_of_lines = len(log_file.splitlines())
+            with open(self.log_filepath, 'r+', encoding='utf-8', errors='ignore') as log_file:
+                number_of_lines = len(log_file.readlines())
+
             if number_of_lines > self.max_lines:
                 self.logger.info('Resetting log file')
+        
+                # Remove and close the current log file handler
+                self.logger.removeHandler(self.log_file)
                 self.log_file.close()
-                # sleep(10)
-                # os.replace(self.log_filepath, self.backup_log_filepath)
+
+                # Rename the current log file to FILE_NAME_2nd_log.txt
+                os.replace(self.log_filepath, self.backup_log_filepath)
+
+                # # Retry logic for renaming the file
+                # retries = 5
+                # for attempt in range(retries):
+                #     try:
+                #         # Rename the current log file to FILE_NAME_2nd_log.txt
+                #         os.replace(self.log_filepath, self.backup_log_filepath)
+                #         break
+                #     except PermissionError:
+                #         if attempt < retries - 1:
+                #             print('Permission error renaming log, retrying')
+                #             sleep(1)  # Wait for 1 second before retrying
+                #         else:
+                #             raise
+
                 log_file = logging.FileHandler(self.log_filepath, mode='w', encoding='utf-8')
                 log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
                 log_file.setFormatter(log_format)
