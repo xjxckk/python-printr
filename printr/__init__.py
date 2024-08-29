@@ -21,6 +21,7 @@ class Logger:
 
         logger = logging.getLogger(__name__)
         logger.setLevel(self.level)
+        logger.propagate = False # Disable duplicate messages with headless Chrome
 
         if log_to_file:
             log_file = logging.FileHandler(log_filepath, encoding='utf-8')
