@@ -4,16 +4,16 @@ from pathlib import Path
 from datetime import datetime
 
 class Logger:
-    def __init__(self, log_filepath=None, max_lines=100_000, level='info', name=None, log_to_file=True):
+    def __init__(self, log_filepath=None, max_lines=10_000, level='info', name=None, log_to_file=True):
         filename = Path(sys.argv[0]).stem
         if not log_filepath:
-            log_filepath = f'{os.getcwd()}/{filename}.txt'
-        else:
-            path_tree = log_filepath.split('/') # ['logs', 'bot.txt']
-            if len(path_tree) > 1:
-                folder_path = '/'.join(path_tree[:-1]) # Remove last item to just keep folder path - e.g. ['logs']
-                if not os.path.isdir(folder_path):
-                    os.mkdir(folder_path)
+            log_filepath = f'{os.getcwd()}/logs/{filename}.txt'
+        
+        path_tree = log_filepath.split('/') # ['logs', 'bot.txt']
+        if len(path_tree) > 1:
+            folder_path = '/'.join(path_tree[:-1]) # Remove last item to just keep folder path - e.g. ['logs']
+            if not os.path.isdir(folder_path):
+                os.mkdir(folder_path)
                     
         self.log_filepath = log_filepath
         self.backup_log_filepath = log_filepath.replace('.txt', '_2nd_log.txt')
