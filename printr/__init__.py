@@ -7,16 +7,15 @@ class Logger:
     def __init__(self, log_filepath=None, max_lines=10_000, level='info', name=None, log_to_file=True):
         filename = Path(sys.argv[0]).stem
         if not log_filepath:
-            log_filepath = f'{os.getcwd()}/logs/{filename}.txt'
-        
-        path_tree = log_filepath.split('/') # ['logs', 'bot.txt']
-        if len(path_tree) > 1:
-            folder_path = '/'.join(path_tree[:-1]) # Remove last item to just keep folder path - e.g. ['logs']
-            if not os.path.isdir(folder_path):
-                os.mkdir(folder_path)
+            log_filepath = f'{os.getcwd()}/{filename}.txt'
+        else:
+            path_tree = log_filepath.split('/') # ['logs', 'bot.txt']
+            if len(path_tree) > 1:
+                folder_path = '/'.join(path_tree[:-1]) # Remove last item to just keep folder path - e.g. ['logs']
+                if not os.path.isdir(folder_path):
+                    os.mkdir(folder_path)
                     
         self.log_filepath = log_filepath
-        self.backup_log_filepath = log_filepath.replace('.txt', '_2nd_log.txt')
         self.max_lines = max_lines
         self.log_to_file = log_to_file
 
@@ -86,21 +85,10 @@ class Logger:
                 self.log_file.close()
 
                 # Rename the current log file to FILE_NAME_2nd_log.txt
-                os.replace(self.log_filepath, self.backup_log_filepath)
-
-                # # Retry logic for renaming the file
-                # retries = 5
-                # for attempt in range(retries):
-                #     try:
-                #         # Rename the current log file to FILE_NAME_2nd_log.txt
-                #         os.replace(self.log_filepath, self.backup_log_filepath)
-                #         break
-                #     except PermissionError:
-                #         if attempt < retries - 1:
-                #             print('Permission error renaming log, retrying')
-                #             sleep(1)  # Wait for 1 second before retrying
-                #         else:
-                #             raise
+                current_datetime = datetime.now()
+                formatted_datetime = current_datetime.strftime('%Y-%m-%d %H-%M-%S')
+                archive_log_filepath = self.log_filepath.replace('.txt', f' {formatted_datetime}.txt')
+                os.replace(self.log_filepath, archive_log_filepath)
 
                 log_file = logging.FileHandler(self.log_filepath, mode='w', encoding='utf-8')
                 log_format = logging.Formatter(fmt=self.indent + '%(levelname)s - %(asctime)s.%(msecs)03d - Line %(lineno)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
