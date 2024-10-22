@@ -7,7 +7,7 @@ class Logger:
     def __init__(self, log_filepath=None, max_lines=10_000, level='info', name=None, log_to_file=True):
         filename = Path(sys.argv[0]).stem
         if not log_filepath:
-            log_filepath = f'{os.getcwd()}/{filename}.txt'
+            log_filepath = f'{os.getcwd()}/logs/{filename}.txt'
         else:
             path_tree = log_filepath.split('/') # ['logs', 'bot.txt']
             if len(path_tree) > 1:
