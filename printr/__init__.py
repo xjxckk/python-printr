@@ -8,12 +8,12 @@ class Logger:
         filename = Path(sys.argv[0]).stem
         if not log_filepath:
             log_filepath = f'{os.getcwd()}/logs/{filename}.txt'
-        else:
-            path_tree = log_filepath.split('/') # ['logs', 'bot.txt']
-            if len(path_tree) > 1:
-                folder_path = '/'.join(path_tree[:-1]) # Remove last item to just keep folder path - e.g. ['logs']
-                if not os.path.isdir(folder_path):
-                    os.mkdir(folder_path)
+
+        path_tree = log_filepath.split('/') # ['logs', 'bot.txt']
+        if len(path_tree) > 1:
+            folder_path = '/'.join(path_tree[:-1]) # Remove last item to just keep folder path - e.g. ['logs']
+            if not os.path.isdir(folder_path):
+                os.mkdir(folder_path)
                     
         self.log_filepath = log_filepath
         self.max_lines = max_lines
