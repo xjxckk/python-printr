@@ -14,6 +14,12 @@ class Logger:
             folder_path = '/'.join(path_tree[:-1]) # Remove last item to just keep folder path - e.g. ['logs']
             if not os.path.isdir(folder_path):
                 os.mkdir(folder_path)
+            if not os.path.isdir(f'{folder_path}/archive'):
+                os.mkdir(f'{folder_path}/archive')
+            path_tree.insert(-1, 'archive')
+            self.archived_log_filepath = '/'.join(path_tree)
+        else:
+            self.archived_log_filepath = log_filepath
                     
         self.log_filepath = log_filepath
         self.max_lines = max_lines
@@ -87,7 +93,7 @@ class Logger:
                 # Rename the current log file to FILE_NAME_2nd_log.txt
                 current_datetime = datetime.now()
                 formatted_datetime = current_datetime.strftime('%Y-%m-%d %H-%M-%S')
-                archive_log_filepath = self.log_filepath.replace('.txt', f' {formatted_datetime}.txt')
+                archive_log_filepath = self.archived_log_filepath.replace('.txt', f' {formatted_datetime}.txt')
                 os.replace(self.log_filepath, archive_log_filepath)
 
                 log_file = logging.FileHandler(self.log_filepath, mode='w', encoding='utf-8')
