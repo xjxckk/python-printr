@@ -1,9 +1,9 @@
 from setuptools import setup
 
 setup(
-    name = 'python-printr',
+    name = 'python_printr',
     packages = ['printr'],
-    version = '2026.1.1',
+    version = '2026.4.15',
     install_requires=['coloredlogs'],
     description = 'printr',
     url = 'https://github.com/xjxckk/python-printr/',
